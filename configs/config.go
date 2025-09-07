@@ -1,7 +1,10 @@
 package configs
 
+import "os"
+
 type Config struct {
 	Smtp SmtpConfig
+	Port string
 }
 
 type SmtpConfig struct {
@@ -17,5 +20,6 @@ func NewConfig() *Config {
 			Password: "123",
 			Address:  "123",
 		},
+		Port: os.Getenv("PORT"),
 	}
 }

@@ -11,7 +11,7 @@ type SmtpHandler struct {
 func NewHandler(router *http.ServeMux) {
 	handler := &SmtpHandler{}
 	router.HandleFunc("POST /send", handler.Send())
-	router.HandleFunc("/verify/{hash}", handler.Send())
+	router.HandleFunc("/verify/{hash}", handler.Verify())
 }
 
 func (handler *SmtpHandler) Send() http.HandlerFunc {
