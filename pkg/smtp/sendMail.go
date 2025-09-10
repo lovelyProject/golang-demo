@@ -2,21 +2,24 @@ package mail
 
 import (
 	"crypto/tls"
-	"log"
-	"net/smtp"
-
+	"fmt"
 	"github.com/jordan-wright/email"
+	"net/smtp"
 )
 
-func SendMail(login, password, host, hash string) {
+func SendMail(login, password, host, hash, emailTo string) error {
 	e := email.NewEmail()
 	e.From = "My App <" + login + ">" // именно так
 	e.To = []string{"edward.hardwork2000@gmail.com"}
 	e.Bcc = []string{"edward.hardwork2000@gmail.com"}
 	e.Cc = []string{"edward.hardwork2000@gmail.com"}
 	e.Subject = "Awesome Subject"
-	e.Text = []byte("Text Body is, of course, supported!")
-	e.HTML = []byte(hash)
+	e.Text = []byte("Привет! Перейди по ссылке для подтверждения: http://localhost:8081/verify/" + hash)
+
+	e.HTML = []byte(fmt.Sprintf(
+		`<p>Привет!</p>
+    <p>Перейди по ссылке для подтверждения:</p>
+    <a href="http://localhost:8081/verify/%s">Подтвердить email</a>`, hash))
 
 	auth := smtp.PlainAuth("", login, password, host)
 
@@ -26,8 +29,8 @@ func SendMail(login, password, host, hash string) {
 		&tls.Config{ServerName: host},
 	)
 	if err != nil {
-		log.Printf("send mail failed: %v", err)
+		return err
 	} else {
-		log.Println("mail sent successfully")
+		return nil
 	}
 }

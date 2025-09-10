@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"go/adv-example/pkg/file"
 	"go/adv-example/pkg/hash"
 	request "go/adv-example/pkg/req"
 	"go/adv-example/pkg/res"
@@ -31,23 +32,36 @@ func NewHandler(router *http.ServeMux, deps configs.SmtpConfig) {
 func (handler *SmtpHandler) Send() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		body, _ := request.HandleBody[SendRequest](w, req)
-		fmt.Println(body, handler.Config)
+		newHash, _ := hash.GenerateHash(32)
+		err := sendMail.SendMail(handler.Config.Email, handler.Config.Password, handler.Config.Server, newHash, body.Email)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		file.SaveInFile("hash.txt", newHash)
+		res.Json(w, newHash, 200)
 	}
 }
 
 func (handler *SmtpHandler) Verify() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		body, _ := request.HandleBody[SendRequest](w, req)
-		fmt.Println(body)
+		pathHash := req.PathValue("hash")
+		isValid := file.CompareText("hash.txt", pathHash)
+		if !isValid {
+			file.DeleteFile("hash.txt")
+			res.Json(w, "invalid hash", 400)
+			return
+		}
+
+		fmt.Println("verified success")
+		res.Json(w, "verified success", 200)
+		// body, _ := request.HandleBody[SendRequest](w, req)
+		// fmt.Println(body)
 	}
 }
 
 func (handler *SmtpHandler) Register() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		body, _ := request.HandleBody[RegisterRequest](w, req)
-		newHash, _ := hash.GenerateHash(32)
-		sendMail.SendMail(handler.Config.Email, handler.Config.Password, handler.Config.Server, newHash)
-		res.Json(w, newHash, 200)
 		fmt.Println(body)
 	}
 }
