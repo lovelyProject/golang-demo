@@ -1,22 +1,31 @@
 package file
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 )
 
-func SaveInFile(path, text string) {
-	f, err := os.Create(path)
-	if err != nil {
-		fmt.Println(err.Error())
+type Verification struct {
+	Email string
+	Hash  string
+}
+
+func SaveInFile(path, email, hash string) error {
+	v := Verification{
+		Email: email,
+		Hash:  hash,
 	}
 
-	defer f.Close()
-
-	_, err = f.WriteString(text)
+	file, err := os.Create(path) // создаём или перезаписываем файл
 	if err != nil {
-		panic(err)
+		return err
 	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "  ") // красиво отформатированный JSON
+	return encoder.Encode(v)
 }
 
 func CompareText(path, textForComparing string) bool {
@@ -26,7 +35,14 @@ func CompareText(path, textForComparing string) bool {
 		return false
 	}
 
-	return string(data) == textForComparing
+	var v Verification
+	err = json.Unmarshal(data, &v)
+	if err != nil {
+		fmt.Println("Ошибка разбора JSON:", err)
+		return false
+	}
+
+	return v.Hash == textForComparing
 }
 
 func DeleteFile(path string) error {

@@ -6,7 +6,7 @@ import (
 	"go/adv-example/pkg/hash"
 	request "go/adv-example/pkg/req"
 	"go/adv-example/pkg/res"
-	sendMail "go/adv-example/pkg/smtp"
+	// sendMail "go/adv-example/pkg/smtp"
 	"net/http"
 	_ "net/smtp"
 	_ "os"
@@ -33,11 +33,11 @@ func (handler *SmtpHandler) Send() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		body, _ := request.HandleBody[SendRequest](w, req)
 		newHash, _ := hash.GenerateHash(32)
-		err := sendMail.SendMail(handler.Config.Email, handler.Config.Password, handler.Config.Server, newHash, body.Email)
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-		file.SaveInFile("hash.txt", newHash)
+		// err := sendMail.SendMail(handler.Config.Email, handler.Config.Password, handler.Config.Server, newHash, body.Email)
+		// if err != nil {
+		// 	fmt.Println(err.Error())
+		// }
+		file.SaveInFile("hash.json", body.Email, newHash)
 		res.Json(w, newHash, 200)
 
 	}
@@ -46,15 +46,15 @@ func (handler *SmtpHandler) Send() http.HandlerFunc {
 func (handler *SmtpHandler) Verify() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		pathHash := req.PathValue("hash")
-		isValid := file.CompareText("hash.txt", pathHash)
+		isValid := file.CompareText("hash.json", pathHash)
 		if !isValid {
-			file.DeleteFile("hash.txt")
+			file.DeleteFile("hash.json")
 			res.Json(w, "invalid hash", 400)
 			return
 		}
 
 		fmt.Println("verified success")
-		file.DeleteFile("hash.txt")
+		file.DeleteFile("hash.json")
 		res.Json(w, "verified success", 200)
 		// body, _ := request.HandleBody[SendRequest](w, req)
 		// fmt.Println(body)

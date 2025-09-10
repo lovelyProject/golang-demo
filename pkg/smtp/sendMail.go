@@ -10,9 +10,9 @@ import (
 func SendMail(login, password, host, hash, emailTo string) error {
 	e := email.NewEmail()
 	e.From = "My App <" + login + ">" // именно так
-	e.To = []string{"edward.hardwork2000@gmail.com"}
-	e.Bcc = []string{"edward.hardwork2000@gmail.com"}
-	e.Cc = []string{"edward.hardwork2000@gmail.com"}
+	e.To = []string{emailTo}
+	e.Bcc = []string{emailTo}
+	e.Cc = []string{emailTo}
 	e.Subject = "Awesome Subject"
 	e.Text = []byte("Привет! Перейди по ссылке для подтверждения: http://localhost:8081/verify/" + hash)
 
