@@ -6,7 +6,7 @@ import (
 	"go/adv-example/pkg/hash"
 	request "go/adv-example/pkg/req"
 	"go/adv-example/pkg/res"
-	// sendMail "go/adv-example/pkg/smtp"
+	sendMail "go/adv-example/pkg/smtp"
 	"net/http"
 	_ "net/smtp"
 	_ "os"
@@ -33,10 +33,10 @@ func (handler *SmtpHandler) Send() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		body, _ := request.HandleBody[SendRequest](w, req)
 		newHash, _ := hash.GenerateHash(32)
-		// err := sendMail.SendMail(handler.Config.Email, handler.Config.Password, handler.Config.Server, newHash, body.Email)
-		// if err != nil {
-		// 	fmt.Println(err.Error())
-		// }
+		err := sendMail.SendMail(handler.Config.Email, handler.Config.Password, handler.Config.Server, newHash, body.Email)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 		file.SaveInFile("hash.json", body.Email, newHash)
 		res.Json(w, newHash, 200)
 
