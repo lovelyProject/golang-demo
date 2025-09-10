@@ -39,6 +39,7 @@ func (handler *SmtpHandler) Send() http.HandlerFunc {
 		}
 		file.SaveInFile("hash.txt", newHash)
 		res.Json(w, newHash, 200)
+
 	}
 }
 
@@ -53,6 +54,7 @@ func (handler *SmtpHandler) Verify() http.HandlerFunc {
 		}
 
 		fmt.Println("verified success")
+		file.DeleteFile("hash.txt")
 		res.Json(w, "verified success", 200)
 		// body, _ := request.HandleBody[SendRequest](w, req)
 		// fmt.Println(body)
