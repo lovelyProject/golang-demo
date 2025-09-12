@@ -2,6 +2,8 @@ package handler
 
 import (
 	"fmt"
+	_ "github.com/jordan-wright/email"
+	"go/adv-example/configs"
 	"go/adv-example/pkg/file"
 	"go/adv-example/pkg/hash"
 	request "go/adv-example/pkg/req"
@@ -10,10 +12,6 @@ import (
 	"net/http"
 	_ "net/smtp"
 	_ "os"
-
-	"go/adv-example/configs"
-
-	_ "github.com/jordan-wright/email"
 )
 
 type SmtpHandler struct {

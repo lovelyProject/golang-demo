@@ -7,8 +7,13 @@ import (
 )
 
 type Config struct {
+	Db   DbConfig
 	Smtp SmtpConfig
 	Port string
+}
+
+type DbConfig struct {
+	Dsn string
 }
 
 type SmtpConfig struct {
@@ -30,5 +35,8 @@ func NewConfig() *Config {
 		},
 
 		Port: os.Getenv("SERVER_PORT"),
+		Db: DbConfig{
+			Dsn: os.Getenv("DB_DSN"),
+		},
 	}
 }

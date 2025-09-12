@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"go/adv-example/configs"
+	"go/adv-example/db"
 	"go/adv-example/internal/handler"
 	"log"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 
 func main() {
 	conf := configs.NewConfig()
+	_ = db.NewDb(conf)
 	router := http.NewServeMux()
 	handler.NewHandler(router, conf.Smtp)
 
