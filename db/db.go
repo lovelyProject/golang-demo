@@ -13,7 +13,8 @@ type Db struct {
 func NewDb(config *configs.Config) *Db {
 	db, err := gorm.Open(postgres.Open(config.Db.Dsn), &gorm.Config{})
 	if err != nil {
-		panic(err)
+
+		panic("failed to connect database: " + err.Error())
 	}
 
 	return &Db{db}
