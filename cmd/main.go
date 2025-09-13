@@ -2,6 +2,7 @@ package main
 
 import (
 	"go/adv-example/configs"
+	"go/adv-example/db"
 	"log"
 	"net/http"
 )
@@ -9,7 +10,7 @@ import (
 func main() {
 	conf := configs.NewConfig()
 	router := http.NewServeMux()
-
+	db.NewDb(conf)
 	server := http.Server{
 		Addr:    conf.Port,
 		Handler: router,
