@@ -3,7 +3,8 @@ package main
 import (
 	"go/adv-example/configs"
 	"go/adv-example/db"
-	handlr "go/adv-example/internal/handler"
+	"go/adv-example/internal/link"
+	"go/adv-example/internal/product"
 	"log"
 	"net/http"
 
@@ -17,8 +18,20 @@ func main() {
 	}
 	conf := configs.NewConfig()
 	router := http.NewServeMux()
-	handlr.NewHandler(router)
-	db.NewDb(conf)
+	// repository
+	database := db.NewDb(conf)
+	linkRepo := link.NewLinkRepository(database)
+	linkService := link.NewService(linkRepo)
+
+	productRepo := product.NewProductRepo(database)
+	productService := product.NewProductService(productRepo)
+	// handler
+	productHandler := product.NewProductHandler(productService)
+	linkHandler := link.NewLinkHandler(link.LinkHandlerDeps{
+		LinkService: linkService,
+	})
+	linkHandler.RegisterRoutes(router)
+
 	server := http.Server{
 		Addr:    conf.Port,
 		Handler: router,
