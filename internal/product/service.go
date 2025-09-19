@@ -19,3 +19,11 @@ func (s *ProductService) GetAll() ([]model.Product, error) {
 	}
 	return products, nil
 }
+
+func (s *ProductService) Create(body *ProductCreateRequest) (model.Product, error) {
+	product, err := s.Repo.Create(body)
+	if err != nil {
+		return model.Product{}, err
+	}
+	return product, nil
+}

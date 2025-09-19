@@ -27,6 +27,7 @@ func main() {
 	productService := product.NewProductService(productRepo)
 	// handler
 	productHandler := product.NewProductHandler(productService)
+	productHandler.RegisterRoutes(router)
 	linkHandler := link.NewLinkHandler(link.LinkHandlerDeps{
 		LinkService: linkService,
 	})
