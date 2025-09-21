@@ -9,3 +9,8 @@ type ProductCreateRequest struct {
 	Price       float64        `json:"price" validate:"required"`
 	Images      pq.StringArray `json:"images"`
 }
+
+type ProductUpdateRequest struct {
+	Name  string  `json:"name"`
+	Price float64 `json:"price"`
+}

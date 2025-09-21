@@ -27,3 +27,28 @@ func (s *ProductService) Create(body *ProductCreateRequest) (model.Product, erro
 	}
 	return product, nil
 }
+
+func (s *ProductService) Update(product *model.Product) error {
+	_, err := s.Repo.Update(product)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ProductService) Delete(product *model.Product) error {
+	err := s.Repo.Delete(product)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *ProductService) GetById(product *model.Product) (model.Product, error) {
+	result, err := s.Repo.GetById(product)
+	if err != nil {
+		return model.Product{}, err
+	}
+	return result, nil
+}

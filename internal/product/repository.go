@@ -41,3 +41,31 @@ func (r *ProductRepo) Create(body *ProductCreateRequest) (model.Product, error) 
 
 	return product, nil
 }
+
+func (r *ProductRepo) Update(product *model.Product) (model.Product, error) {
+	result := r.Database.DB.Updates(&product)
+	if result.Error != nil {
+		return model.Product{}, result.Error
+	}
+
+	return *product, nil
+}
+
+func (r *ProductRepo) Delete(product *model.Product) error {
+	result := r.Database.DB.Delete(&product)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func (r *ProductRepo) GetById(product *model.Product) (model.Product, error) {
+	var foundProduct model.Product
+	result := r.Database.DB.First(&foundProduct, "id = ?", product.ID)
+	if result.Error != nil {
+		return model.Product{}, result.Error
+	}
+
+	return foundProduct, nil
+}
