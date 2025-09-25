@@ -5,6 +5,7 @@ import (
 	"go/adv-example/db"
 	"go/adv-example/internal/link"
 	"go/adv-example/internal/product"
+	"go/adv-example/pkg/middleware"
 	"log"
 	"net/http"
 
@@ -33,9 +34,13 @@ func main() {
 	})
 	linkHandler.RegisterRoutes(router)
 
+	middlewares := middleware.Chain(
+		middleware.IsAuthenticated,
+		middleware.Log,
+	)
 	server := http.Server{
 		Addr:    conf.Port,
-		Handler: router,
+		Handler: middlewares(router),
 	}
 
 	log.Println("server started")
