@@ -1,0 +1,8 @@
+/.env
+/postgres_data
+/vendor
+/dist
+/build
+/test
+/testdata
+/testdata
