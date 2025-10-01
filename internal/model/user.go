@@ -9,4 +9,5 @@ type User struct {
 	Name      string `gorm:"not null" validate:"required"`
 	Phone     string `gorm:"unique" validate:"required,numeric,min=5,max=16"`
 	SessionId string `gorm:"unique"`
+	Code      string
 }

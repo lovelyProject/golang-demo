@@ -61,6 +61,7 @@ func (service *AuthService) LoginByPhone(phone string) (string, error) {
 		return "", err
 	}
 
+	service.Repo.UpdateCode(sessionId)
 	return sessionId, nil
 }
 

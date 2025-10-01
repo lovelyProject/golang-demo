@@ -43,7 +43,7 @@ func main() {
 	linkHandler.RegisterRoutes(router)
 
 	middlewares := middleware.Chain(
-		middleware.IsAuthenticated,
+		// middleware.IsAuthenticated,
 		middleware.Log,
 	)
 	server := http.Server{

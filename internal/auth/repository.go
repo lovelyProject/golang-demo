@@ -2,9 +2,13 @@ package auth
 
 import (
 	"errors"
-	"github.com/google/uuid"
 	"go/adv-example/db"
 	"go/adv-example/internal/model"
+
+	"math/rand"
+	"strconv"
+
+	"github.com/google/uuid"
 )
 
 type AuthRepo struct {
@@ -39,6 +43,22 @@ func (repo *AuthRepo) GenerateSessionIdByPhone(phone string) (string, error) {
 	return sessionId, nil
 }
 
+func (repo *AuthRepo) UpdateCode(sessionId string) error {
+	code := rand.Intn(10000)
+	var user model.User
+	result := repo.Database.First(&user, "session_id = ?", sessionId)
+	if result.Error != nil {
+		return result.Error
+	}
+	user.Code = strconv.Itoa(code)
+	result = repo.Database.Updates(&user)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func (repo *AuthRepo) FindBySessionId(sessionId, code string) (model.User, error) {
 	var user model.User
 	result := repo.Database.First(&user, "session_id = ?", sessionId)
@@ -46,7 +66,7 @@ func (repo *AuthRepo) FindBySessionId(sessionId, code string) (model.User, error
 		return model.User{}, result.Error
 	}
 
-	if code != "1234" {
+	if code != user.Code {
 		return model.User{}, errors.New("invalid code")
 	}
 
