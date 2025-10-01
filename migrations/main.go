@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/joho/godotenv"
 	"go/adv-example/configs"
-	model "go/adv-example/model"
+	model "go/adv-example/internal/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -24,6 +24,11 @@ func main() {
 		panic("failed to migrate database: " + err.Error())
 	}
 	err = db.AutoMigrate(&model.Link{})
+	if err != nil {
+		panic("failed to migrate database: " + err.Error())
+	}
+
+	err = db.AutoMigrate(&model.User{})
 	if err != nil {
 		panic("failed to migrate database: " + err.Error())
 	}

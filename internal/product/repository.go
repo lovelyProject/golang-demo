@@ -2,7 +2,7 @@ package product
 
 import (
 	"go/adv-example/db"
-	model "go/adv-example/model"
+	model "go/adv-example/internal/model"
 )
 
 type ProductRepo struct {

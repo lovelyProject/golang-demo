@@ -1,7 +1,7 @@
 package product
 
 import (
-	model "go/adv-example/model"
+	model "go/adv-example/internal/model"
 	req "go/adv-example/pkg/req"
 	"go/adv-example/pkg/res"
 	"gorm.io/gorm"

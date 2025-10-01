@@ -3,6 +3,7 @@ package main
 import (
 	"go/adv-example/configs"
 	"go/adv-example/db"
+	"go/adv-example/internal/auth"
 	"go/adv-example/internal/link"
 	"go/adv-example/internal/product"
 	"go/adv-example/pkg/middleware"
@@ -32,6 +33,13 @@ func main() {
 	linkHandler := link.NewLinkHandler(link.LinkHandlerDeps{
 		LinkService: linkService,
 	})
+
+	//auth
+	authRepo := auth.NewAuthRepo(database)
+	authService := auth.NewAuthService(authRepo)
+	authHandler := auth.NewAuthHandler(authService, conf)
+	authHandler.RegisterRoutes(router)
+
 	linkHandler.RegisterRoutes(router)
 
 	middlewares := middleware.Chain(

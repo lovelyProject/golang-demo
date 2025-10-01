@@ -1,6 +1,6 @@
 package product
 
-import model "go/adv-example/model"
+import model "go/adv-example/internal/model"
 
 type ProductService struct {
 	Repo *ProductRepo
