@@ -32,7 +32,8 @@ func main() {
 	productHandler.RegisterRoutes(router)
 	linkHandler := link.NewLinkHandler(link.LinkHandlerDeps{
 		LinkService: linkService,
-	})
+		Config:      conf,
+	}, conf)
 
 	//auth
 	authRepo := auth.NewAuthRepo(database)

@@ -1,6 +1,9 @@
 package link
 
 import (
+	"fmt"
+	"go/adv-example/configs"
+	middleware "go/adv-example/pkg/middleware"
 	requestHandler "go/adv-example/pkg/req"
 	"go/adv-example/pkg/res"
 	"net/http"
@@ -9,20 +12,23 @@ import (
 
 type LinkHandlerDeps struct {
 	LinkService *LinkService
+	Config      *configs.Config
 }
 
 type LinkHandler struct {
 	LinkService *LinkService
+	Config      *configs.Config
 }
 
-func NewLinkHandler(deps LinkHandlerDeps) *LinkHandler {
+func NewLinkHandler(deps LinkHandlerDeps, config *configs.Config) *LinkHandler {
 	return &LinkHandler{
 		LinkService: deps.LinkService,
+		Config:      deps.Config,
 	}
 }
 
 func (linkHandler *LinkHandler) RegisterRoutes(router *http.ServeMux) {
-	router.HandleFunc("POST /link", linkHandler.CreateLink())
+	router.Handle("POST /link", middleware.IsAuthenticated(linkHandler.CreateLink(), linkHandler.Config))
 	router.HandleFunc("GET /link/{hash}", linkHandler.GoTo())
 	router.HandleFunc("PUT /link/{hash}", linkHandler.UpdateLink())
 	router.HandleFunc("DELETE /link/{hash}", linkHandler.DeleteLink())
@@ -30,6 +36,8 @@ func (linkHandler *LinkHandler) RegisterRoutes(router *http.ServeMux) {
 
 func (linkHandler *LinkHandler) CreateLink() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		email := r.Context().Value(middleware.ContextEmailKey).(string)
+		fmt.Println(email)
 		body, err := requestHandler.HandleBody[LinkCreateRequest](w, r)
 		if err != nil {
 			res.Json(w, http.StatusBadRequest, err.Error())

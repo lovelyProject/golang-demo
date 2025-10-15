@@ -41,7 +41,7 @@ func (h *AuthHandler) Register() http.HandlerFunc {
 			return
 		}
 
-		token, err := jwt.NewJWT(h.Config.Auth.Secret).CreateToken(email)
+		token, err := jwt.NewJWT(h.Config.Auth.Secret).CreateToken(jwt.JWTData{Email: email})
 		if err != nil {
 			res.Json(w, http.StatusInternalServerError, err.Error())
 			return
@@ -65,7 +65,7 @@ func (h *AuthHandler) Login() http.HandlerFunc {
 			return
 		}
 
-		token, err := jwt.NewJWT(h.Config.Auth.Secret).CreateToken(email)
+		token, err := jwt.NewJWT(h.Config.Auth.Secret).CreateToken(jwt.JWTData{Email: email})
 		if err != nil {
 			res.Json(w, http.StatusInternalServerError, err.Error())
 			return
@@ -106,7 +106,7 @@ func (h *AuthHandler) PhoneLoginVerify() http.HandlerFunc {
 			res.Json(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		token, err := jwt.NewJWT(h.Config.Auth.Secret).CreateToken(email)
+		token, err := jwt.NewJWT(h.Config.Auth.Secret).CreateToken(jwt.JWTData{Email: email})
 		if err != nil {
 			res.Json(w, http.StatusInternalServerError, err.Error())
 			return
