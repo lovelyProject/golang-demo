@@ -6,6 +6,8 @@ import (
 	"go/adv-example/internal/auth"
 	"go/adv-example/internal/link"
 	"go/adv-example/internal/product"
+	"go/adv-example/internal/stat"
+	"go/adv-example/pkg/event"
 	"go/adv-example/pkg/middleware"
 	"log"
 	"net/http"
@@ -20,6 +22,9 @@ func main() {
 	}
 	conf := configs.NewConfig()
 	router := http.NewServeMux()
+
+	eventBus := event.NewEventBus()
+
 	// repository
 	database := db.NewDb(conf)
 	linkRepo := link.NewLinkRepository(database)
@@ -42,6 +47,12 @@ func main() {
 	authHandler.RegisterRoutes(router)
 
 	linkHandler.RegisterRoutes(router)
+
+	//stat
+	statRepo := stat.NewStatRepository(database)
+	statService := stat.NewStatService(statRepo, eventBus)
+	statHanlder := stat.NewStatHandler(statService, conf)
+	statHanlder.RegisterRoutes(router)
 
 	middlewares := middleware.Chain(
 		// middleware.IsAuthenticated,

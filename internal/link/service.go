@@ -29,3 +29,18 @@ func (linkService *LinkService) Delete(id uint) error {
 	err := linkService.Repo.Delete(id)
 	return err
 }
+
+func (linkService *LinkService) GetAll(limit, offset int) (GetAllLinksResponse, error) {
+	links, err := linkService.Repo.GetAll(limit, offset)
+	if err != nil {
+		return GetAllLinksResponse{}, err
+	}
+	total, err := linkService.Repo.Count()
+	if err != nil {
+		return GetAllLinksResponse{}, err
+	}
+	return GetAllLinksResponse{
+		Total: total,
+		Links: links,
+	}, nil
+}

@@ -19,16 +19,7 @@ func main() {
 		panic("failed to connect database: " + err.Error())
 	}
 
-	err = db.AutoMigrate(&model.Product{})
-	if err != nil {
-		panic("failed to migrate database: " + err.Error())
-	}
-	err = db.AutoMigrate(&model.Link{})
-	if err != nil {
-		panic("failed to migrate database: " + err.Error())
-	}
-
-	err = db.AutoMigrate(&model.User{})
+	err = db.AutoMigrate(&model.User{}, &model.Product{}, model.Stat{}, &model.Link{})
 	if err != nil {
 		panic("failed to migrate database: " + err.Error())
 	}
