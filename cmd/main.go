@@ -5,6 +5,7 @@ import (
 	"go/adv-example/db"
 	"go/adv-example/internal/auth"
 	"go/adv-example/internal/link"
+	"go/adv-example/internal/order"
 	"go/adv-example/internal/product"
 	"go/adv-example/internal/stat"
 	"go/adv-example/pkg/event"
@@ -53,6 +54,12 @@ func main() {
 	statService := stat.NewStatService(statRepo, eventBus)
 	statHanlder := stat.NewStatHandler(statService, conf)
 	statHanlder.RegisterRoutes(router)
+
+	// order
+	orderRepo := order.NewOrderRepository(database)
+	orderService := order.NewService(orderRepo)
+	orderHandler := order.NewOrderHandler(orderService, conf)
+	orderHandler.RegisterRoutes(router)
 
 	middlewares := middleware.Chain(
 		// middleware.IsAuthenticated,

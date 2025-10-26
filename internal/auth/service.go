@@ -16,16 +16,16 @@ func NewAuthService(repo *AuthRepo) *AuthService {
 	}
 }
 
-func (service *AuthService) Register(email, name, password string) (string, error) {
+func (service *AuthService) Register(email, name, password string) (model.User, error) {
 	_, err := service.Repo.FindByEmail(email)
 	if err != nil {
-		return "", errors.New(ErrUserExists)
+		return model.User{}, errors.New(ErrUserExists)
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
 	if err != nil {
-		return "", err
+		return model.User{}, err
 	}
 
 	user := model.User{
@@ -33,12 +33,12 @@ func (service *AuthService) Register(email, name, password string) (string, erro
 		Name:     name,
 		Password: string(hashedPassword),
 	}
-	err = service.Repo.Create(user)
+	userID, err := service.Repo.Create(user)
 	if err != nil {
-		return "", err
+		return model.User{}, err
 	}
-
-	return user.Email, nil
+	user.ID = userID
+	return user, nil
 }
 
 func (service *AuthService) Login(email, password string) (string, error) {

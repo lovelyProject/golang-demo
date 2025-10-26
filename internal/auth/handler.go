@@ -35,13 +35,13 @@ func (h *AuthHandler) Register() http.HandlerFunc {
 			return
 		}
 
-		email, err := h.Service.Register(body.Email, body.Name, body.Password)
+		user, err := h.Service.Register(body.Email, body.Name, body.Password)
 		if err != nil {
 			res.Json(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		token, err := jwt.NewJWT(h.Config.Auth.Secret).CreateToken(jwt.JWTData{Email: email})
+		token, err := jwt.NewJWT(h.Config.Auth.Secret).CreateToken(jwt.JWTData{Email: user.Email, ID: user.ID})
 		if err != nil {
 			res.Json(w, http.StatusInternalServerError, err.Error())
 			return

@@ -13,6 +13,7 @@ type key string
 
 const (
 	ContextEmailKey key = "email"
+	ContextIdKey    key = "id"
 )
 
 func IsAuthenticated(next http.Handler, config *configs.Config) http.Handler {
@@ -26,6 +27,7 @@ func IsAuthenticated(next http.Handler, config *configs.Config) http.Handler {
 			return
 		}
 		ctx := context.WithValue(r.Context(), ContextEmailKey, data.Email)
+		ctx = context.WithValue(ctx, ContextIdKey, data.ID)
 
 		req := r.WithContext(ctx)
 		fmt.Println(isValid, data)

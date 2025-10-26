@@ -38,7 +38,8 @@ func (repo *AuthRepo) GenerateSessionIdByPhone(phone string) (string, error) {
 		return "", result.Error
 	}
 	sessionId := uuid.New().String()
-	user.SessionId = sessionId
+
+	user.SessionId = &sessionId
 	repo.Database.Updates(&user)
 	return sessionId, nil
 }
@@ -50,7 +51,8 @@ func (repo *AuthRepo) UpdateCode(sessionId string) error {
 	if result.Error != nil {
 		return result.Error
 	}
-	user.Code = strconv.Itoa(code)
+	codeStr := strconv.Itoa(code)
+	user.Code = &codeStr
 	result = repo.Database.Updates(&user)
 	if result.Error != nil {
 		return result.Error
@@ -66,18 +68,17 @@ func (repo *AuthRepo) FindBySessionId(sessionId, code string) (model.User, error
 		return model.User{}, result.Error
 	}
 
-	if code != user.Code {
+	if user.Code == nil || code != *user.Code {
 		return model.User{}, errors.New("invalid code")
 	}
 
 	return user, nil
 }
 
-func (repo *AuthRepo) Create(user model.User) error {
+func (repo *AuthRepo) Create(user model.User) (uint, error) {
 	result := repo.Database.Create(&user)
 	if result.Error != nil {
-		return result.Error
+		return 0, result.Error
 	}
-
-	return nil
+	return user.ID, nil
 }

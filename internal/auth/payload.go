@@ -1,9 +1,11 @@
 package auth
 
 type RegisterRequest struct {
-	Email    string `json:"email" validate:"required,email"`
-	Name     string `json:"username" validate:"required"`
-	Password string `json:"password" validate:"required"`
+	Email     string  `json:"email" validate:"required,email"`
+	Name      string  `json:"username" validate:"required"`
+	Password  string  `json:"password" validate:"required"`
+	Phone     *string `json:"phone"`
+	SessionId *string `json:"session_id"`
 }
 
 type LoginRequest struct {
