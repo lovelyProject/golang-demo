@@ -47,7 +47,7 @@ func (h *AuthHandler) Register() http.HandlerFunc {
 			return
 		}
 
-		res.Json(w, http.StatusOK, RegisterResponse{Token: token})
+		res.Json(w, http.StatusCreated, RegisterResponse{Token: token})
 	}
 }
 
@@ -61,7 +61,7 @@ func (h *AuthHandler) Login() http.HandlerFunc {
 
 		email, err := h.Service.Login(body.Email, body.Password)
 		if err != nil {
-			res.Json(w, http.StatusInternalServerError, err.Error())
+			res.Json(w, http.StatusBadRequest, err.Error())
 			return
 		}
 

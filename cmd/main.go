@@ -16,7 +16,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func main() {
+func App() http.Handler {
 	err := godotenv.Load(".env")
 	if err != nil {
 		panic(err)
@@ -65,13 +65,19 @@ func main() {
 		// middleware.IsAuthenticated,
 		middleware.Log,
 	)
+
+	return middlewares(router)
+}
+
+func main() {
+	app := App()
 	server := http.Server{
-		Addr:    conf.Port,
-		Handler: middlewares(router),
+		Addr:    ":8081",
+		Handler: app,
 	}
 
 	log.Println("server started")
-	err = server.ListenAndServe()
+	err := server.ListenAndServe()
 	if err != nil {
 		log.Fatalf("server failed: %v", err)
 	}
