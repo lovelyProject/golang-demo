@@ -1,0 +1,7 @@
+/.env
+/cmd/.env
+/postgres_data
+/vendor
+/dist
+/build
+/cmd/.env
