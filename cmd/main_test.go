@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
+	"github.com/joho/godotenv"
+	"go/adv-example/internal/order"
 	"io"
 
-	"github.com/joho/godotenv"
 	"go/adv-example/internal/auth"
 	"go/adv-example/internal/model"
 	jwtPkg "go/adv-example/pkg/jwt"
@@ -21,11 +21,24 @@ import (
 )
 
 func initDb() *gorm.DB {
-	err := godotenv.Load("./.env")
+	adminDSN := "host=localhost user=postgres password=postgres dbname=postgres sslmode=disable"
+	adminDB, err := gorm.Open(postgres.Open(adminDSN), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect to admin database: " + err.Error())
+	}
+
+	adminDB.Exec("DROP DATABASE IF EXISTS test_order")
+	adminDB.Exec("CREATE DATABASE test_order")
+
+	sqlDB, _ := adminDB.DB()
+	sqlDB.Close()
+
+	err = godotenv.Load("./.env")
 	if err != nil {
 		panic(err)
 	}
 	db, err := gorm.Open(postgres.Open(os.Getenv("DB_DSN")), &gorm.Config{})
+
 	if err != nil {
 		panic("failed to connect database: " + err.Error())
 	}
@@ -95,7 +108,8 @@ func TestCreateOrder(t *testing.T) {
 	removeData(db)
 	CreateUsersInDb(db)
 	CreateProductInDb(db)
-	ts := httptest.NewServer(App())
+	app := App()
+	ts := httptest.NewServer(app)
 
 	loginPayload, _ := json.Marshal(auth.LoginRequest{
 		Email:    "e.konovalov@emcd.io",
@@ -119,10 +133,25 @@ func TestCreateOrder(t *testing.T) {
 		t.Fatal(errors.New("invalid token"))
 	}
 
-	productsId := []uint{1}
-	userId := jwtData.ID
-	fmt.Println(userId)
-	_, err = CreateWithProducts(db, productsId, userId)
+	orderPayload, _ := json.Marshal(order.CreateOrderRequest{
+		ProductsID: []uint{1},
+	})
+	req, _ := http.NewRequest("POST", ts.URL+"/order", bytes.NewReader(orderPayload))
+	req.Header.Set("Authorization", "Bearer "+body.Token)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal(errors.New("invalid token"))
+	}
+	var createOrder model.Order
+	json.NewDecoder(resp.Body).Decode(&createOrder)
+
+	if createOrder.ID == 0 {
+		t.Fatal(errors.New("order was not created"))
+	}
 
 	if err != nil {
 		t.Fatal(err)
