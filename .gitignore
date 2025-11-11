@@ -1,5 +1,5 @@
 /.env
-/.env.development
+/cmd/.env
 /postgres_data
 /vendor
 /dist

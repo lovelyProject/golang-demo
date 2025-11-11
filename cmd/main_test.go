@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 
 	"github.com/joho/godotenv"
 	"go/adv-example/internal/auth"
@@ -19,7 +21,7 @@ import (
 )
 
 func initDb() *gorm.DB {
-	err := godotenv.Load(".env.development")
+	err := godotenv.Load("./.env")
 	if err != nil {
 		panic(err)
 	}
@@ -82,26 +84,48 @@ func removeData(db *gorm.DB) {
 	db.Unscoped().
 		Where("email = ?", "e.konovalov@emcd.io").
 		Delete(&model.User{})
+
+	db.Unscoped().
+		Where("id = ?", 1).
+		Delete(&model.Order{})
 }
 
 func TestCreateOrder(t *testing.T) {
 	db := initDb()
+	removeData(db)
 	CreateUsersInDb(db)
 	CreateProductInDb(db)
+	ts := httptest.NewServer(App())
 
 	loginPayload, _ := json.Marshal(auth.LoginRequest{
 		Email:    "e.konovalov@emcd.io",
 		Password: "Google12345^",
 	})
-	userJwt, _ := http.Post("http://localhost:8080/create-order", "application/json", bytes.NewReader(loginPayload))
-	valid, jwtData := jwtPkg.NewJWT(os.Getenv("SECRET")).Parse(userJwt)
-	productsId := []uint{1}
-	_, err := CreateWithProducts(db, productsId, 1)
+	response, err := http.Post(ts.URL+"/auth/login", "application/json", bytes.NewReader(loginPayload))
+
 	if err != nil {
 		t.Fatal(err)
 	}
-	ts := httptest.NewServer(App())
-	defer ts.Close()
+	data, _ := io.ReadAll(response.Body)
+	var body auth.LoginResponse
+	if err := json.Unmarshal(data, &body); err != nil {
+		t.Fatal(err)
+	}
+	valid, jwtData := jwtPkg.NewJWT(os.Getenv("SECRET")).Parse(body.Token)
+	if !valid {
+		t.Fatal(errors.New("invalid token"))
+	}
+	if jwtData.Email != "e.konovalov@emcd.io" {
+		t.Fatal(errors.New("invalid token"))
+	}
 
-	removeData(db)
+	productsId := []uint{1}
+	userId := jwtData.ID
+	fmt.Println(userId)
+	_, err = CreateWithProducts(db, productsId, userId)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ts.Close()
 }
